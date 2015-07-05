@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <info>
-    <id>oslayer</id>
-    <name>Os Layer</name>
-    <description>My first ownCloud app</description>
+    <id>ownlayer</id>
+    <name>OwnLayer</name>
+    <description>OpenLayers integration</description>
     <licence>AGPL</licence>
     <author>shi</author>
     <version>0.0.1</version>
-    <namespace>OsLayer</namespace>
+    <namespace>OwnLayer</namespace>
     <category>other</category>
     <dependencies>
         <owncloud min-version="8.0" />

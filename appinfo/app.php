@@ -11,7 +11,7 @@
 
 //namespace OCA\OsLayer\AppInfo;
 
-OCP\Util::addScript('oslayer', 'ol');
-OCP\Util::addScript('oslayer', 'applayer');
-OCP\Util::addStyle('oslayer', 'ol');
-OCP\Util::addStyle('oslayer', 'style');
+OCP\Util::addScript('ownlayer', 'ol');
+OCP\Util::addScript('ownlayer', 'applayer');
+OCP\Util::addStyle('ownlayer', 'ol');
+OCP\Util::addStyle('ownlayer', 'style');
