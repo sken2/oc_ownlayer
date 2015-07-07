@@ -51,12 +51,18 @@
 					new ol.layer.Tile({
 						name : 'Base layer by OSM',
 						source: new ol.source.MapQuest({layer:'osm'})
+						
 					})
 				],
-				controls: 
-					new ol.control.defaults()
+				controls: [ 
+					new ol.control.Attribution({
+						collapsible: false
+					}),
+					new ol.control.Zoom(),
+					new ol.control.ZoomSlider()
 //					new ol.control.FullScreen()
-				,
+				
+				],
 				target: map
 			});
 			var cls = new ol.control.Control({element: cl_div});
