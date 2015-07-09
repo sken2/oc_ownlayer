@@ -92,7 +92,11 @@ class GeoJSON extends Entity implements JsonSerializable {
 	}
 
 	protected function geometry($params){
-		return $params;
+		if(is_array($params)) {
+			return $params;
+//		} else {
+//			return array($params->lon, $params->lat);
+		}
 	}
 	protected function geometry_array($params) {
 		$dim = sizeof(reset($params));

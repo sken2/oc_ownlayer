@@ -13,11 +13,14 @@
 //	$(document).ready(function () {
 //	});
 	OCA.OwnLayer = OCA.OwnLayer || {};
-	OCA.OwnLayer.open = function(lon, lat, zoom) {
+	OCA.OwnLayer.open = function(coord, zoom) {
 // lat with string makes wrong value. parse both lon and lat for safety
  		zoom = zoom || 15;
-		var lonlat = [parseFloat(lon), parseFloat(lat)];
-		var coord3857 = ol.proj.transform(lonlat,'EPSG:4326', 'EPSG:3857');
+console.log(coord);
+		var gj = new ol.format.GeoJSON();
+//		var lonlat = gj.readGeometry(coord);
+		var coord = [parseFloat(coord[0]), parseFloat(coord[1])];
+		var coord3857 = ol.proj.transform(coord,'EPSG:4326', 'EPSG:3857');
 		var nview = new ol.View({
 			center: coord3857,
 			zoom:zoom
@@ -66,9 +69,8 @@
 				target: map
 			});
 			var cls = new ol.control.Control({element: cl_div});
-			cls.on('click', function(){//!doesnt work with no error
+			cls.on('click', function(){
 				this.close();
-				console.log('Control clicked');
 			}, null);
 			OCA.OwnLayer.Map.addControl(cls);
 		}
@@ -81,19 +83,20 @@
 		}
 	}
 
-	OCA.OwnLayer.plot = function(l_name, coord) {
-		var lonlat = [parseFloat(coord.lon), parseFloat(coord.lat)];
-		var coord3857 = ol.proj.transform(lonlat, 'EPSG:4326', 'EPSG:3857');
+	OCA.OwnLayer.plot = function(l_name, points) {
+//		var lonlat = [parseFloat(coord.lon), parseFloat(coord.lat)];
+//		var gj = new ol.format.geoJSON();
+//		var lonlat = gj.readGeometry(point);
+//		var coord3857 = ol.proj.transform(lonlat, 'EPSG:4326', 'EPSG:3857');
 		var plot;
 		layers = OCA.OwnLayer.Map.getLayers().forEach(function(l){
-			console.log(l.get('name'));
-			if(l.get('name')==='Picture Location'){
+			if(l.get('name')===l_name){
 				plot = l;
 			}
 		});
 		if (!plot) {
 			plot = new ol.layer.Vector({
-				name: 'Picture Location',
+				name: l_name,
 				source: new ol.source.Vector(),
 				opacity: 0.75,
 				visible: true
@@ -101,10 +104,17 @@
 			OCA.OwnLayer.Map.addLayer(plot);
 		}
 		var s = plot.getSource();
-		s.addFeature(new ol.Feature({
-			geometry: new ol.geom.Point(coord3857),
-			name: 'Pic1'
-		}));
+		points.coordinates.forEach(function(p){
+			var coord = ol.proj.transform(
+				[parseFloat(p[0]), parseFloat(p[1])],
+				'EPSG:4326',
+				'EPSG:3857'
+			);
+			s.addFeature(new ol.Feature({
+				geometry: new ol.geom.Point(coord),
+				name: 'Pic1'
+			}));
+		});
 	}
 
 })(jQuery, OCA);
