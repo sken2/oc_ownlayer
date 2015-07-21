@@ -17,8 +17,6 @@
 // lat with string makes wrong value. parse both lon and lat for safety
  		zoom = zoom || 15;
 console.log(coord);
-		var gj = new ol.format.GeoJSON();
-//		var lonlat = gj.readGeometry(coord);
 		var coord = [parseFloat(coord[0]), parseFloat(coord[1])];
 		var coord3857 = ol.proj.transform(coord,'EPSG:4326', 'EPSG:3857');
 		var nview = new ol.View({
@@ -35,13 +33,10 @@ console.log(coord);
 			cl_div.className='ol-control ol-custom-close ol-unselectable';
 			var cl_btn = document.createElement('BUTTON');
 			cl_div.appendChild(cl_btn);
-//			cl_btn.value='close';
 			btn_txt = document.createElement('SPAN');
 			btn_txt.appendChild(document.createTextNode('X'))
 			cl_btn.appendChild(btn_txt);
 			cl_btn.addEventListener('click', this.close, false);
-//			map.appendChild(cl_btn);
-			
 		}
 
 		if(OCA.OwnLayer.Map) {
@@ -62,9 +57,9 @@ console.log(coord);
 						collapsible: false
 					}),
 					new ol.control.Zoom(),
-					new ol.control.ZoomSlider()
-//					new ol.control.FullScreen()
-				
+					new ol.control.ZoomSlider(),
+					new ol.control.OverviewMap(),
+//					new ol.control.FullScreen(),
 				],
 				target: map
 			});
@@ -73,6 +68,7 @@ console.log(coord);
 				this.close();
 			}, null);
 			OCA.OwnLayer.Map.addControl(cls);
+			OCA.OwnLayer.Map.on('change', layerlist);
 		}
 	};
 
@@ -84,10 +80,6 @@ console.log(coord);
 	}
 
 	OCA.OwnLayer.plot = function(l_name, points) {
-//		var lonlat = [parseFloat(coord.lon), parseFloat(coord.lat)];
-//		var gj = new ol.format.geoJSON();
-//		var lonlat = gj.readGeometry(point);
-//		var coord3857 = ol.proj.transform(lonlat, 'EPSG:4326', 'EPSG:3857');
 		var plot;
 		layers = OCA.OwnLayer.Map.getLayers().forEach(function(l){
 			if(l.get('name')===l_name){
@@ -115,6 +107,34 @@ console.log(coord);
 				name: 'Pic1'
 			}));
 		});
+		fireEvent.call(OCA.OwnLayer.Map, 'change');
+	}
+
+	function layerlist() {
+		var listbox = document.createElement('DIV');
+		listbox.className='ol-control ol-custom-llist ol-unselectable';
+	
+		this.getLayers().forEach(function(l) {
+			var l_span = document.createElement('SPAN');
+			var vis_chk = document.createElement('INPUT');
+			vis_chk.type = 'checkbox';
+			vis_chk.checked = l.getVisible();
+			vis_chk.addEventListener('change', function(){
+				l.setVisible(this.checked);
+			}, false);
+			listbox.appendChild(l_span);
+			l_span.appendChild(vis_chk);
+			l_span.appendChild(document.createTextNode(l.get('name')));
+		});
+		if(OCA.OwnLayer.layerlist) {
+			OCA.OwnLayer.Map.removeControl(OCA.OwnLayer.layerlist);
+		}
+		OCA.OwnLayer.layerlist = new ol.control.Control({element: listbox});
+		OCA.OwnLayer.Map.addControl(OCA.OwnLayer.layerlist);
+	};
+	function fireEvent(type) {
+		ev = new Event(type, {"bubbles":true, "cancelable":false});
+		this.dispatchEvent(ev);
 	}
 
 })(jQuery, OCA);
