@@ -24,7 +24,11 @@ console.log(coord);
 			zoom:zoom
 		});
 		var map = document.getElementById('OwnLayer');
-		if(!map) {
+
+		if(OCA.OwnLayer.Map) {
+			OCA.OwnLayer.Map.setView(nview);
+			map.style.display = '';
+		} else {
 			var c_body= document.getElementById('body-user');
 			var map=document.createElement('DIV');
 			map.id='OwnLayer';
@@ -37,12 +41,7 @@ console.log(coord);
 			btn_txt.appendChild(document.createTextNode('X'))
 			cl_btn.appendChild(btn_txt);
 			cl_btn.addEventListener('click', this.close, false);
-		}
 
-		if(OCA.OwnLayer.Map) {
-			OCA.OwnLayer.Map.setView(nview);
-			map.style.display = '';
-		} else {
 		 	OCA.OwnLayer.Map = new ol.Map({
 				view: nview,
 				layers: [
@@ -122,9 +121,24 @@ console.log(coord);
 			vis_chk.addEventListener('change', function(){
 				l.setVisible(this.checked);
 			}, false);
+
+			del_label = document.createElement('LABEL');
+			del_label.addEventListener('click', function() {
+//console.log(l);
+				OCA.OwnLayer.Map.removeLayer(l);
+				listbox.removeChild(l_span);
+				if(!OCA.OwnLayer.Map.getLayers().getLength()) {
+					// destroy map if no layer left
+					OCA.OwnLayer.Map = null;
+					OCA.OwnLayer.layerlist = null;
+					OCA.OwnLayer.close();
+				}
+			});
+			del_label.appendChild(document.createTextNode('D'));
 			listbox.appendChild(l_span);
 			l_span.appendChild(vis_chk);
 			l_span.appendChild(document.createTextNode(l.get('name')));
+			l_span.appendChild(del_label);
 		});
 		if(OCA.OwnLayer.layerlist) {
 			OCA.OwnLayer.Map.removeControl(OCA.OwnLayer.layerlist);
@@ -132,6 +146,7 @@ console.log(coord);
 		OCA.OwnLayer.layerlist = new ol.control.Control({element: listbox});
 		OCA.OwnLayer.Map.addControl(OCA.OwnLayer.layerlist);
 	};
+
 	function fireEvent(type) {
 		ev = new Event(type, {"bubbles":true, "cancelable":false});
 		this.dispatchEvent(ev);

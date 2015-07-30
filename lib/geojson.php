@@ -14,10 +14,11 @@ class GeoJSON extends Entity implements JsonSerializable {
 	private $type;
 	private $container = array() ;
 	
+	private $properties;
 	private $crs;
 	private $bbox;
 
-	public function __construct ($type, $params, $crs = null, $bbox = null) {
+	public function __construct ($type, $params, $props = null,  $crs = null, $bbox = null) {
 
 		switch ($type){
 		case 'Feature':
@@ -51,7 +52,19 @@ class GeoJSON extends Entity implements JsonSerializable {
 			throw new \Exception('oops');
 		}
 		$this->type = $type;
+		$this->properties = $props;
 		$this->crs = $crs;
+		$this->bbox = $bbox;
+	}
+
+	public function setProperties($props) {
+		//! have to check $prop is array or Object
+		$this->propetries = $prop;
+	}
+	public function setBbox($bbox = null) {
+		if (!$bbox  or !is_array($bbox) or empty($bbox) ) {
+			$bbox = $this->calcBbox();
+		}
 		$this->bbox = $bbox;
 	}
 
@@ -94,8 +107,6 @@ class GeoJSON extends Entity implements JsonSerializable {
 	protected function geometry($params){
 		if(is_array($params)) {
 			return $params;
-//		} else {
-//			return array($params->lon, $params->lat);
 		}
 	}
 	protected function geometry_array($params) {
@@ -133,5 +144,27 @@ class GeoJSON extends Entity implements JsonSerializable {
 			}
 		}
 		return $params;
+	}
+
+	protected function calcBbox($here = null, $bb = array()) {
+		if(!$here) {
+			$here = $this->container;
+		}
+		$first = reset($here);
+		foreach ($here as $geo) {
+			if(is_array($geo[0])) {
+				$bb = $this->calcBbox($geo, $bb) ;
+			} else {
+				if(empty($bb)) {
+					$bb = array_slice($geo, 0, 2);
+				} else {
+					$bb[0] = min($geo[0], $bb[0]);	
+					$bb[1] = min($geo[1], $bb[1]);	
+					$bb[2] = max($geo[2], $bb[2]);	
+					$bb[3] = max($geo[3], $bb[3]);	
+				}
+			}
+		}
+		return $bb;
 	}
 }
